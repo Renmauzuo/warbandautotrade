@@ -49,6 +49,11 @@ slot_item_enterprise_building_cost      = 58 #enterprise building cost
 slot_item_multiplayer_item_class   = 60 #temporary, can be moved to higher values
 slot_item_multiplayer_availability_linked_list_begin = 61 #temporary, can be moved to higher values
 
+#Autotrade begin
+slot_item_auto_trade_buy_under_price	= 62 #Items will be automatically bought under this price
+slot_item_auto_trade_sell_over_price	= 63 #Items will be automatically sold over this price
+#Autotrade end
+
 
 ########################################################
 ##  AGENT SLOTS            #############################

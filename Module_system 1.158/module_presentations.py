@@ -11903,4 +11903,82 @@ presentations = [
       (try_end),
       ]),
     ]),
+
+  #Autotrade begin
+  ("auto_trade_options", 0, mesh_load_window, [
+    (ti_on_presentation_load, [      
+      (presentation_set_duration, 999999), 
+      (set_fixed_point_multiplier, 1000),
+
+      (create_game_button_overlay, "$g_presentation_obj_1", "@Done"),
+      (position_set_x, pos1, 900),
+      (position_set_y, pos1, 25),
+      (overlay_set_position, "$g_presentation_obj_1", pos1),
+
+      #Allows user to set a minimum wealth value for auto buying so they don't accidentally spend all their money
+      (create_text_overlay, reg0, "@Only buy goods if wealth is above:", tf_vertical_align_center),
+      (position_set_x, pos1, 50),
+      (position_set_y, pos1, 700),
+      (overlay_set_position, reg0, pos1),
+
+      (create_number_box_overlay, "$g_presentation_obj_2", 0, 100000),
+      (position_set_x, pos1, 400),
+      (position_set_y, pos1, 692),
+      (overlay_set_val, "$g_presentation_obj_2", "$g_auto_trade_minimum_wealth"),
+      (overlay_set_position, "$g_presentation_obj_2", pos1),
+
+      #Column headers
+      (create_text_overlay, reg0, "@Buy Under:", tf_vertical_align_center),
+      (position_set_x, pos1, 220),
+      (position_set_y, pos1, 650),
+      (overlay_set_position, reg0, pos1),
+
+      (create_text_overlay, reg0, "@Sell Over:", tf_vertical_align_center),
+      (position_set_x, pos1, 420),
+      (position_set_y, pos1, 650),
+      (overlay_set_position, reg0, pos1),
+
+      (assign, ":pos_y", 620),
+      (try_for_range, ":cur_item", trade_goods_begin, trade_goods_end),
+
+        #Item name column
+        (str_store_item_name, s4, ":cur_item"),
+        (create_text_overlay, reg0, s4, tf_vertical_align_center),
+        (position_set_x, pos1, 50),
+        (position_set_y, pos1, ":pos_y"),
+        (overlay_set_position, reg0, pos1),
+
+        (store_sub, ":number_box_y", ":pos_y", 8),
+        (create_number_box_overlay, reg1, 0, 100000),
+        (position_set_x, pos1, 225),
+        (position_set_y, pos1, ":number_box_y"),
+        (item_get_slot, ":buy_under", ":cur_item", slot_item_auto_trade_buy_under_price),
+        (overlay_set_val, reg1, ":buy_under"),
+        (overlay_set_position, reg1, pos1),
+
+        (create_number_box_overlay, reg1, 0, 100000),
+        (position_set_x, pos1, 425),
+        (position_set_y, pos1, ":number_box_y"),
+        (item_get_slot, ":sell_over", ":cur_item", slot_item_auto_trade_sell_over_price),
+        (overlay_set_val, reg1, ":sell_over"),
+        (overlay_set_position, reg1, pos1),
+        
+        (val_sub, ":pos_y", 30),
+    
+      (try_end),
+    ]),
+
+    (ti_on_presentation_event_state_change,
+      [
+        (store_trigger_param_1, ":object"),
+        (store_trigger_param_2, ":value"),
+
+        (try_begin),
+          (eq, ":object", "$g_presentation_obj_1"),
+          (presentation_set_duration, 0),
+        (try_end),
+    ]),
+  ]),
+  #Autotrade end
+
   ]

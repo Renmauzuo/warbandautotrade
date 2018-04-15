@@ -11084,6 +11084,13 @@ game_menus = [
            (party_get_slot, ":merchant_troop", "$current_town", slot_town_merchant),
            (change_screen_trade, ":merchant_troop"),
         ]),
+      #Autotrade begin
+      ("auto_Trade",[],
+       "Buy and sell trade goods automatically.",
+       [
+           (start_presentation, "prsnt_auto_trade_options"),
+        ]),
+      #Autotrade end
       ("back_to_town_menu",[],"Head back.",
        [
            (jump_to_menu,"mnu_town"),

@@ -895,6 +895,11 @@ scripts = [
       (try_for_range, ":party_no", centers_begin, centers_end),
         (party_set_note_available, ":party_no", 1),
       (try_end),
+
+      #Autotrade begin
+      (call_script, "script_initialize_auto_trade"),
+
+      #Autotrade end
     ]),
 
   #script_game_get_use_string
@@ -47577,5 +47582,19 @@ scripts = [
       (call_script, "script_troop_add_gold", ":cur_merchant", ":new_gold"),
     (try_end),
   ]),
+
+  # script_initialize_auto_trade
+  ("initialize_auto_trade",
+  [
+    (assign, "$g_auto_trade_minimum_wealth", 1000), 
+
+    (try_for_range, ":cur_item", trade_goods_begin, trade_goods_end),
+        (store_item_value, ":item_value", ":cur_item"),
+        (store_mul, ":buy_price", ":item_value", .9),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_buy_under_price, ":buy_price"),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":item_value"),
+    (try_end),
+  ]),
+  
 
 ]

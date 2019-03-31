@@ -47669,6 +47669,10 @@ scripts = [
       (store_free_inventory_capacity, ":free_inv_cap", ":merchant_troop"),
       (gt, ":free_inv_cap", 0),
 
+      #Don't sell if player has disabled auto selling for this item
+      (item_get_slot, ":sell_enabled", ":item", slot_item_auto_trade_sell_enabled),
+      (gt, ":sell_enabled", 0),
+
       (call_script, "script_game_get_item_sell_price_factor", ":item"),
       (assign, ":sell_price_factor", reg0),
       (store_item_value,":score",":item"),
@@ -47710,6 +47714,10 @@ scripts = [
 
       (store_free_inventory_capacity, ":free_inv_cap", ":customer"),
       (gt, ":free_inv_cap", 0),
+
+      #Don't buy if player has disabled auto buying for this item
+      (item_get_slot, ":buy_enabled", ":item", slot_item_auto_trade_buy_enabled),
+      (gt, ":buy_enabled", 0),
 
       (call_script, "script_game_get_item_buy_price_factor", ":item"),
       (assign, ":buy_price_factor", reg0),

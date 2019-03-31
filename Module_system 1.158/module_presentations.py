@@ -11947,13 +11947,23 @@ presentations = [
 
       #Column headers
       (assign, ":pos_y", 650),
-      (create_text_overlay, reg0, "@Buy Under:", tf_vertical_align_center),
-      (position_set_x, pos1, 220),
+      (create_text_overlay, reg0, "@Buy", tf_vertical_align_center),
+      (position_set_x, pos1, 215),
       (position_set_y, pos1, ":pos_y",),
       (overlay_set_position, reg0, pos1),
 
-      (create_text_overlay, reg0, "@Sell Over:", tf_vertical_align_center),
-      (position_set_x, pos1, 420),
+      (create_text_overlay, reg0, "@If Under:", tf_vertical_align_center),
+      (position_set_x, pos1, 270),
+      (position_set_y, pos1, ":pos_y",),
+      (overlay_set_position, reg0, pos1),
+
+      (create_text_overlay, reg0, "@Sell", tf_vertical_align_center),
+      (position_set_x, pos1, 400),
+      (position_set_y, pos1, ":pos_y",),
+      (overlay_set_position, reg0, pos1),
+
+      (create_text_overlay, reg0, "@If Over:", tf_vertical_align_center),
+      (position_set_x, pos1, 455),
       (position_set_y, pos1, ":pos_y",),
       (overlay_set_position, reg0, pos1),
 
@@ -11972,23 +11982,42 @@ presentations = [
         (position_set_y, pos1, ":pos_y"),
         (overlay_set_position, reg0, pos1),
 
+        #Buy price column
         (store_sub, ":number_box_y", ":pos_y", 8),
-        (create_number_box_overlay, reg1, 0, 100000),
-        (position_set_x, pos1, 225),
+        (create_number_box_overlay, reg0, 0, 100000),
+        (position_set_x, pos1, 275),
         (position_set_y, pos1, ":number_box_y"),
         (item_get_slot, ":buy_under", ":cur_item", slot_item_auto_trade_buy_under_price),
-        (overlay_set_val, reg1, ":buy_under"),
-        (overlay_set_position, reg1, pos1),
-        (troop_set_slot, "trp_temp_array_a", ":cur_item", reg1),
+        (overlay_set_val, reg0, ":buy_under"),
+        (overlay_set_position, reg0, pos1),
+        (troop_set_slot, "trp_temp_array_a", ":cur_item", reg0),
 
-        (create_number_box_overlay, reg1, 0, 100000),
-        (position_set_x, pos1, 425),
-        (position_set_y, pos1, ":number_box_y"),
+        #Sell price column
+        (create_number_box_overlay, reg0, 0, 100000),
+        (position_set_x, pos1, 460),
         (item_get_slot, ":sell_over", ":cur_item", slot_item_auto_trade_sell_over_price),
-        (overlay_set_val, reg1, ":sell_over"),
-        (overlay_set_position, reg1, pos1),
-        (troop_set_slot, "trp_temp_array_b", ":cur_item", reg1),
+        (overlay_set_val, reg0, ":sell_over"),
+        (overlay_set_position, reg0, pos1),
+        (troop_set_slot, "trp_temp_array_b", ":cur_item", reg0),
         
+        #Buy enabled column
+        (store_sub, ":check_box_y", ":pos_y", 5),
+        (create_check_box_overlay, reg0, "mesh_checkbox_off", "mesh_checkbox_on"),
+        (position_set_x, pos1, 220),
+        (position_set_y, pos1, ":check_box_y"),
+        (overlay_set_position, reg0, pos1),
+        (item_get_slot, ":buy_enabled", ":cur_item", slot_item_auto_trade_buy_enabled),
+        (overlay_set_val, reg0, ":buy_enabled"),
+        (troop_set_slot, "trp_temp_array_c", ":cur_item", reg0),
+
+        #Sell enabled column
+        (create_check_box_overlay, reg0, "mesh_checkbox_off", "mesh_checkbox_on"),
+        (position_set_x, pos1, 405),
+        (overlay_set_position, reg0, pos1),
+        (item_get_slot, ":sell_enabled", ":cur_item", slot_item_auto_trade_sell_enabled),
+        (overlay_set_val, reg0, ":sell_enabled"),
+        (troop_set_slot, "trp_temp_array_d", ":cur_item", reg0),
+
         (val_sub, ":pos_y", 30),
     
       (try_end),
@@ -12036,6 +12065,12 @@ presentations = [
             (else_try),
               (troop_slot_eq, "trp_temp_array_b", ":cur_item", ":object"),
               (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":value"),
+            (else_try),
+              (troop_slot_eq, "trp_temp_array_c", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_buy_enabled, ":value"),
+            (else_try),
+              (troop_slot_eq, "trp_temp_array_d", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_sell_enabled, ":value"),
             (try_end),
           (try_end),
         (try_end),

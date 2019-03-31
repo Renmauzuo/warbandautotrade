@@ -47592,9 +47592,14 @@ scripts = [
 
     (try_for_range, ":cur_item", trade_goods_begin, trade_goods_end),
         (store_item_value, ":item_value", ":cur_item"),
-        (store_mul, ":buy_price", ":item_value", .9),
+        (store_mul, ":buy_price", ":item_value", 80),
+        (val_div, ":buy_price", 100),
         (item_set_slot, ":cur_item", slot_item_auto_trade_buy_under_price, ":buy_price"),
         (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":item_value"),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_buy_enabled, 1),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_sell_enabled, 1),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_min_quantity, 0),
+        (item_set_slot, ":cur_item", slot_item_auto_trade_max_quantity, 0),
     (try_end),
   ]),
 
@@ -47650,6 +47655,39 @@ scripts = [
     (store_script_param, ":merchant_troop", 1),
     (assign, ":customer", "trp_player"),
 
+    (troop_get_inventory_capacity, ":inv_cap", ":customer"),
+    (set_show_messages, 0),
+
+    (try_for_range, ":i_slot", 10, ":inv_cap"),
+      (troop_get_inventory_slot, ":item", ":customer", ":i_slot"),
+      (gt, ":item", -1),
+      (is_between, ":item", trade_goods_begin, trade_goods_end),
+      (troop_inventory_slot_get_item_amount, ":amount", ":customer", ":i_slot"),
+      (troop_inventory_slot_get_item_max_amount, ":max_amount", ":customer", ":i_slot"),
+      (eq, ":amount", ":max_amount"),
+
+      (store_free_inventory_capacity, ":free_inv_cap", ":merchant_troop"),
+      (gt, ":free_inv_cap", 0),
+
+      (call_script, "script_game_get_item_sell_price_factor", ":item"),
+      (assign, ":sell_price_factor", reg0),
+      (store_item_value,":score",":item"),
+      (val_mul, ":score", ":sell_price_factor"),
+      (val_div, ":score", 100),
+      (val_max, ":score",1),
+      (store_troop_gold, ":merchant_gold", ":merchant_troop"),
+      (ge, ":merchant_gold", ":score"),
+
+      (item_get_slot, ":sell_price", ":item", slot_item_auto_trade_sell_over_price),
+      (gt, ":score", ":sell_price"),
+
+      (troop_add_item, ":merchant_troop", ":item"),
+      (troop_set_inventory_slot, ":customer", ":i_slot", -1),
+      (troop_remove_gold, ":merchant_troop", ":score"),
+      (troop_add_gold, ":customer", ":score"),
+      (call_script, "script_game_event_sell_item", ":item", 0),
+    (try_end),
+    (set_show_messages, 1),
   ]),
 
   # script_auto_trade_buy_from_merchant
@@ -47660,13 +47698,8 @@ scripts = [
     (store_script_param, ":merchant_troop", 1),
     (assign, ":customer", "trp_player"),
 
-    #Preserve registers
-    #Not sure if this is necessary, but shouldn't hurt to do it
-    (assign, ":save_reg0", reg0),
-
-
     (troop_get_inventory_capacity, ":inv_cap", ":merchant_troop"),
-
+    (set_show_messages, 0),
     (try_for_range, ":i_slot", 10, ":inv_cap"),
       (troop_get_inventory_slot, ":item", ":merchant_troop", ":i_slot"),
       (gt, ":item", -1),
@@ -47697,10 +47730,7 @@ scripts = [
       (troop_add_gold, ":merchant_troop", ":score"),
       (call_script, "script_game_event_buy_item", ":item", 0),
     (try_end),
-
-    #Preserve registers
-    (assign, reg0, ":save_reg0"),
-
+    (set_show_messages, 1),
   ]),
 
   #Autotrade end

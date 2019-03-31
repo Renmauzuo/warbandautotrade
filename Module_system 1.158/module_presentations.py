@@ -11998,17 +11998,8 @@ presentations = [
       [
         (store_trigger_param_1, ":object"),
         (store_trigger_param_2, ":value"),
-
-        (try_for_range, ":cur_item", trade_goods_begin, trade_goods_end),
-          (try_begin),
-            (troop_slot_eq, "trp_temp_array_a", ":cur_item", ":object"),
-            (item_set_slot, ":cur_item", slot_item_auto_trade_buy_under_price, ":value"),
-          (else_try),
-            (troop_slot_eq, "trp_temp_array_b", ":cur_item", ":object"),
-            (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":value"),
-          (try_end),
-        (try_end),
-
+        
+        (assign, ":items_per_page", 17),
 
         (try_begin),
           (eq, ":object", "$g_presentation_obj_1"),
@@ -12021,7 +12012,6 @@ presentations = [
           (assign, "$g_auto_trade_items_when_leaving", ":value"),
         (else_try),
           (eq, ":object", "$g_presentation_obj_4"),
-          (assign, ":items_per_page", 17),
           (store_sub, ":num_trade_goods", trade_goods_end, trade_goods_begin),
           (store_div, ":num_trade_pages", ":num_trade_goods", ":items_per_page"),
           #If there's a remainder add a page for the extra items
@@ -12033,6 +12023,21 @@ presentations = [
           (val_add, "$g_auto_trade_page_no", 1),
           (val_mod, "$g_auto_trade_page_no", ":num_trade_pages"),
           (start_presentation, "prsnt_auto_trade_options"),
+        (else_try),
+          #Iterating through all items caused a bug where changing one page would affect the other(s)
+          (store_mul, ":starting_trade_good", ":items_per_page", "$g_auto_trade_page_no"),
+          (val_add, ":starting_trade_good", trade_goods_begin),
+          (store_add, ":ending_trade_good", ":starting_trade_good", ":items_per_page"),
+          (val_min, ":ending_trade_good", trade_goods_end),
+          (try_for_range, ":cur_item", ":starting_trade_good", ":ending_trade_good"),
+            (try_begin),
+              (troop_slot_eq, "trp_temp_array_a", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_buy_under_price, ":value"),
+            (else_try),
+              (troop_slot_eq, "trp_temp_array_b", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":value"),
+            (try_end),
+          (try_end),
         (try_end),
     ]),
   ]),

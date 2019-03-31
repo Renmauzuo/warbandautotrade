@@ -568,5 +568,8 @@ script_refresh_center_armories = 566
 script_refresh_center_weaponsmiths = 567
 script_refresh_center_stables = 568
 script_initialize_auto_trade = 569
+script_auto_trade_at_center = 570
+script_auto_trade_sell_to_merchant = 571
+script_auto_trade_buy_from_merchant = 572
 
 

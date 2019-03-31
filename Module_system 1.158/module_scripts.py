@@ -47583,10 +47583,12 @@ scripts = [
     (try_end),
   ]),
 
+  #Autotrade begin
   # script_initialize_auto_trade
   ("initialize_auto_trade",
   [
     (assign, "$g_auto_trade_minimum_wealth", 1000), 
+    (assign, "$g_auto_trade_items_when_leaving", 0),
 
     (try_for_range, ":cur_item", trade_goods_begin, trade_goods_end),
         (store_item_value, ":item_value", ":cur_item"),
@@ -47595,6 +47597,112 @@ scripts = [
         (item_set_slot, ":cur_item", slot_item_auto_trade_sell_over_price, ":item_value"),
     (try_end),
   ]),
-  
+
+  # script_auto_trade_at_center
+  # Used to automatically buy and sell trade goods at a center
+  #Input: center_no
+  #Output: none
+  ("auto_trade_at_center", [
+    (store_script_param, ":center_no", 1),
+    (try_begin),
+      #For Towns:
+      (is_between, ":center_no", towns_begin, towns_end),
+      (try_begin),
+        #Sell to non-trade good merchants first so player has plenty of cash and inventory space when dealing with goods merchant
+        (party_get_slot, ":merchant_troop", ":center_no", slot_town_weaponsmith),
+        (ge, ":merchant_troop", 1),
+        (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+      (try_end),
+      (try_begin),
+        (party_get_slot, ":merchant_troop", ":center_no", slot_town_armorer),
+        (ge, ":merchant_troop", 1),
+        (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+      (try_end),
+      (try_begin),
+        (party_get_slot, ":merchant_troop", ":center_no", slot_town_horse_merchant),
+        (ge, ":merchant_troop", 1),
+        (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+      (try_end),
+      (try_begin),
+        (party_get_slot, ":merchant_troop", ":center_no", slot_town_merchant),
+        (ge, ":merchant_troop", 1),
+        #Player should be in a good position to buy after selling to other merchants
+        (call_script, "script_auto_trade_buy_from_merchant", ":merchant_troop"),
+        (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+      (try_end),
+    (else_try),
+      #For Villages:
+      (is_between, ":center_no", villages_begin, villages_end),
+      (party_get_slot, ":merchant_troop", ":center_no", slot_town_elder),
+      (ge, ":merchant_troop", 1),
+      #Villages tend to not have much coin, so we buy first to make sure they can afford the player's goods
+      (call_script, "script_auto_trade_buy_from_merchant", ":merchant_troop"),
+      (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+    (try_end),
+  ]),
+
+  # script_auto_trade_sell_to_merchant
+  # This may need to be changed to take a parameter for customer if ever used for anyone other than player
+  # Buying and selling are split into separate scripts since there's no point trying to buy from armor/weapon/horse merchants
+  # Input: :merchant_troop
+  # Output: none
+  ("auto_trade_sell_to_merchant", [
+    (store_script_param, ":merchant_troop", 1),
+    (assign, ":customer", "trp_player"),
+
+  ]),
+
+  # script_auto_trade_buy_from_merchant
+  # This may need to be changed to take a parameter for customer if ever used for anyone other than player
+  # Input: :merchant_troop
+  # Output: none
+  ("auto_trade_buy_from_merchant", [
+    (store_script_param, ":merchant_troop", 1),
+    (assign, ":customer", "trp_player"),
+
+    #Preserve registers
+    #Not sure if this is necessary, but shouldn't hurt to do it
+    (assign, ":save_reg0", reg0),
+
+
+    (troop_get_inventory_capacity, ":inv_cap", ":merchant_troop"),
+
+    (try_for_range, ":i_slot", 10, ":inv_cap"),
+      (troop_get_inventory_slot, ":item", ":merchant_troop", ":i_slot"),
+      (gt, ":item", -1),
+      (is_between, ":item", trade_goods_begin, trade_goods_end),
+      (troop_inventory_slot_get_item_amount, ":amount", ":merchant_troop", ":i_slot"),
+      (troop_inventory_slot_get_item_max_amount, ":max_amount", ":merchant_troop", ":i_slot"),
+      (eq, ":amount", ":max_amount"),
+
+      (store_free_inventory_capacity, ":free_inv_cap", ":customer"),
+      (gt, ":free_inv_cap", 0),
+
+      (call_script, "script_game_get_item_buy_price_factor", ":item"),
+      (assign, ":buy_price_factor", reg0),
+      (store_item_value,":score",":item"),
+      (val_mul, ":score", ":buy_price_factor"),
+      (val_div, ":score", 100),
+      (val_max, ":score",1),
+      (store_troop_gold, ":customer_gold", ":customer"),
+      (val_sub, ":customer_gold", "$g_auto_trade_minimum_wealth"),
+      (ge, ":customer_gold", ":score"),
+
+      (item_get_slot, ":buy_price", ":item", slot_item_auto_trade_buy_under_price),
+      (lt, ":score", ":buy_price"),
+
+      (troop_add_item, ":customer", ":item"),
+      (troop_set_inventory_slot, ":merchant_troop", ":i_slot", -1),
+      (troop_remove_gold, ":customer", ":score"),
+      (troop_add_gold, ":merchant_troop", ":score"),
+      (call_script, "script_game_event_buy_item", ":item", 0),
+    (try_end),
+
+    #Preserve registers
+    (assign, reg0, ":save_reg0"),
+
+  ]),
+
+  #Autotrade end
 
 ]

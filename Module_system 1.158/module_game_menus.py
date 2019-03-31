@@ -7672,7 +7672,21 @@ game_menus = [
       ("village_reports",[(eq, "$cheat_mode", 1),], "{!}CHEAT! Show reports.",
        [(jump_to_menu,"mnu_center_reports"),
            ]),
-      ("village_leave",[],"Leave...",[(change_screen_return,0)]),
+      ("village_leave",[],"Leave...",[(change_screen_return,0),
+        #AutoTrade Begin
+        #Automatically buy and sell with village elder, if enabled
+        (try_begin),
+          (party_slot_eq, "$current_town", slot_village_state, svs_normal),
+          (neg|party_slot_ge, "$current_town", slot_village_infested_by_bandits, 1),
+          (party_get_slot, ":merchant_troop", "$current_town",slot_town_elder),
+          (gt, ":merchant_troop", 0),
+          (eq, "$g_auto_trade_items_when_leaving", 1),
+          #Villages tend to not have much coin, so we buy first to make sure they can afford the player's goods
+          (call_script, "script_auto_trade_buy_from_merchant", ":merchant_troop"),
+          (call_script, "script_auto_trade_sell_to_merchant", ":merchant_troop"),
+        (try_end),
+        #AutoTrade End
+      ]),
       
     ],
   ),
@@ -9791,6 +9805,15 @@ game_menus = [
       [
         (assign, "$g_permitted_to_center",0),
         (change_screen_return,0),
+        #AutoTrade Begin
+        #Automatically buy and sell trade goods with this town if enabled
+        (try_begin),
+          (eq, "$sneaked_into_town", 0), #Disable if disguised.
+          (neg|party_slot_ge, "$current_town", slot_village_infested_by_bandits, 1),
+          (eq, "$g_auto_trade_items_when_leaving", 1),
+          (call_script, "script_auto_trade_at_center", "$current_town"),
+        (try_end),
+        #AutoTrade End
       ],"Leave Area."),
 
       ("castle_cheat_interior",
@@ -11088,7 +11111,8 @@ game_menus = [
       ("auto_Trade",[],
        "Buy and sell trade goods automatically.",
        [
-           (start_presentation, "prsnt_auto_trade_options"),
+          (assign, "$g_next_menu", "mnu_town"),
+          (jump_to_menu,"mnu_auto_trade"),
         ]),
       #Autotrade end
       ("back_to_town_menu",[],"Head back.",
@@ -14512,8 +14536,23 @@ game_menus = [
     ]
   ),
 
-  
-  
+  #Autotrade begin
+  (
+    "auto_trade",0,
+    "Trade goods will automatically be bought if their price is low enough or sold if their price is high enough. You can adjust the price thresholds, disable auto trading for certain goods, or set minimum and maximum values to avoid filling your inventory with one good or selling items you want to keep.",
+    "none",
+  [],
+  [
+    ("continue",[],"Continue...",
+    [
+      (call_script, "script_auto_trade_at_center", "$current_town"),
+      (jump_to_menu, "$g_next_menu"),
+    ]),
+    ("change_settings",[],"Change settings.",[(start_presentation, "prsnt_auto_trade_options"),]),
+    ("go_back",[],"Go back",[(jump_to_menu, "$g_next_menu")]),
+  ]
+  ),
+  #Autotrade end  
 
   
  ]

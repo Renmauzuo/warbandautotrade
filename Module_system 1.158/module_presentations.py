@@ -11954,17 +11954,22 @@ presentations = [
 
       (create_text_overlay, reg0, "@If Under:", tf_vertical_align_center),
       (position_set_x, pos1, 270),
-      (position_set_y, pos1, ":pos_y",),
       (overlay_set_position, reg0, pos1),
 
       (create_text_overlay, reg0, "@Sell", tf_vertical_align_center),
       (position_set_x, pos1, 400),
-      (position_set_y, pos1, ":pos_y",),
       (overlay_set_position, reg0, pos1),
 
       (create_text_overlay, reg0, "@If Over:", tf_vertical_align_center),
       (position_set_x, pos1, 455),
-      (position_set_y, pos1, ":pos_y",),
+      (overlay_set_position, reg0, pos1),
+
+      (create_text_overlay, reg0, "@Min Qty:", tf_vertical_align_center),
+      (position_set_x, pos1, 600),
+      (overlay_set_position, reg0, pos1),
+
+      (create_text_overlay, reg0, "@Max Qty:", tf_vertical_align_center),
+      (position_set_x, pos1, 700),
       (overlay_set_position, reg0, pos1),
 
       (assign, ":items_per_page", 17), #If changes this also needs to be changed in the state change block
@@ -12017,6 +12022,24 @@ presentations = [
         (item_get_slot, ":sell_enabled", ":cur_item", slot_item_auto_trade_sell_enabled),
         (overlay_set_val, reg0, ":sell_enabled"),
         (troop_set_slot, "trp_temp_array_d", ":cur_item", reg0),
+
+        #Minimum Quantity Column
+        (create_number_box_overlay, reg0, 0, 100000),
+        (position_set_x, pos1, 605),
+        (position_set_y, pos1, ":number_box_y"),
+        (item_get_slot, ":min_quantity", ":cur_item", slot_item_auto_trade_min_quantity),
+        (overlay_set_val, reg0, ":min_quantity"),
+        (overlay_set_position, reg0, pos1),
+        (troop_set_slot, "trp_temp_array_e", ":cur_item", reg0),
+
+        #Maximum Quantity Column
+        (create_number_box_overlay, reg0, 0, 100000),
+        (position_set_x, pos1, 705),
+        (position_set_y, pos1, ":number_box_y"),
+        (item_get_slot, ":max_quantity", ":cur_item", slot_item_auto_trade_max_quantity),
+        (overlay_set_val, reg0, ":max_quantity"),
+        (overlay_set_position, reg0, pos1),
+        (troop_set_slot, "trp_temp_array_f", ":cur_item", reg0),
 
         (val_sub, ":pos_y", 30),
     
@@ -12071,6 +12094,12 @@ presentations = [
             (else_try),
               (troop_slot_eq, "trp_temp_array_d", ":cur_item", ":object"),
               (item_set_slot, ":cur_item", slot_item_auto_trade_sell_enabled, ":value"),
+            (else_try),
+              (troop_slot_eq, "trp_temp_array_e", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_min_quantity, ":value"),
+            (else_try),
+              (troop_slot_eq, "trp_temp_array_f", ":cur_item", ":object"),
+              (item_set_slot, ":cur_item", slot_item_auto_trade_max_quantity, ":value"),
             (try_end),
           (try_end),
         (try_end),

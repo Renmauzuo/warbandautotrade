@@ -47673,6 +47673,11 @@ scripts = [
       (item_get_slot, ":sell_enabled", ":item", slot_item_auto_trade_sell_enabled),
       (gt, ":sell_enabled", 0),
 
+      #Don't sell if the current amount is less than or equal to the player's minimum quantity
+      (store_item_kind_count, ":item_count", ":item", ":customer"),
+      (item_get_slot, ":min_qty", ":item", slot_item_auto_trade_min_quantity),
+      (gt, ":item_count", ":min_qty"),
+
       (call_script, "script_game_get_item_sell_price_factor", ":item"),
       (assign, ":sell_price_factor", reg0),
       (store_item_value,":score",":item"),
@@ -47718,6 +47723,18 @@ scripts = [
       #Don't buy if player has disabled auto buying for this item
       (item_get_slot, ":buy_enabled", ":item", slot_item_auto_trade_buy_enabled),
       (gt, ":buy_enabled", 0),
+
+      #Don't buy if the quantity would exceed player's max quantity
+      #Since there is a separate option to enable/disable, a max quantity of 0 is treated as no max
+      (store_item_kind_count, ":item_count", ":item", ":customer"),
+      (assign, ":qty_valid", 1),
+      (try_begin),
+        (item_get_slot, ":max_qty", ":item", slot_item_auto_trade_max_quantity),
+        (gt, ":max_qty", 0),
+        (ge, ":item_count", ":max_qty"),
+        (assign, ":qty_valid", 0),
+      (try_end),
+      (eq, ":qty_valid", 1),
 
       (call_script, "script_game_get_item_buy_price_factor", ":item"),
       (assign, ":buy_price_factor", reg0),

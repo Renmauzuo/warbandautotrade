@@ -47655,6 +47655,8 @@ scripts = [
     (store_script_param, ":merchant_troop", 1),
     (assign, ":customer", "trp_player"),
 
+    (assign, ":items_sold", 0),
+    (assign, ":gold_gained", 0),
     (troop_get_inventory_capacity, ":inv_cap", ":customer"),
     (set_show_messages, 0),
 
@@ -47683,7 +47685,7 @@ scripts = [
       (store_item_value,":score",":item"),
       (val_mul, ":score", ":sell_price_factor"),
       (val_div, ":score", 100),
-      (val_max, ":score",1),
+      (val_max, ":score", 1),
       (store_troop_gold, ":merchant_gold", ":merchant_troop"),
       (ge, ":merchant_gold", ":score"),
 
@@ -47695,8 +47697,20 @@ scripts = [
       (troop_remove_gold, ":merchant_troop", ":score"),
       (troop_add_gold, ":customer", ":score"),
       (call_script, "script_game_event_sell_item", ":item", 0),
+      (val_add, ":items_sold", 1),
+      (val_add, ":gold_gained", ":score"),
     (try_end),
     (set_show_messages, 1),
+
+    #Print a message if appropriate
+    (try_begin),
+      (ge, ":items_sold", 1),
+      (assign, reg0, ":gold_gained"),
+      (assign, reg1, ":items_sold"),
+      (store_sub, reg3, reg1, 1),
+      (str_store_troop_name, s0, ":merchant_troop"),
+      (display_message, "@You sold {reg1} {reg3?items:item} to {s0} and gained {reg0} {reg3?denars:denar}."),
+    (try_end),
   ]),
 
   # script_auto_trade_buy_from_merchant
@@ -47707,6 +47721,8 @@ scripts = [
     (store_script_param, ":merchant_troop", 1),
     (assign, ":customer", "trp_player"),
 
+    (assign, ":items_bought", 0),
+    (assign, ":gold_spent", 0),
     (troop_get_inventory_capacity, ":inv_cap", ":merchant_troop"),
     (set_show_messages, 0),
     (try_for_range, ":i_slot", 10, ":inv_cap"),
@@ -47754,8 +47770,20 @@ scripts = [
       (troop_remove_gold, ":customer", ":score"),
       (troop_add_gold, ":merchant_troop", ":score"),
       (call_script, "script_game_event_buy_item", ":item", 0),
+      (val_add, ":items_bought", 1),
+      (val_add, ":gold_spent", ":score"),
     (try_end),
     (set_show_messages, 1),
+
+    #Print a message if appropriate
+    (try_begin),
+      (ge, ":items_bought", 1),
+      (assign, reg0, ":gold_spent"),
+      (assign, reg1, ":items_bought"),
+      (store_sub, reg3, reg1, 1),
+      (str_store_troop_name, s0, ":merchant_troop"),
+      (display_message, "@You bought {reg1} {reg3?items:item} from {s0} for {reg0} {reg3?denars:denar}."),
+    (try_end),
   ]),
 
   #Autotrade end

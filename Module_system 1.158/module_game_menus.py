@@ -7676,6 +7676,7 @@ game_menus = [
         #AutoTrade Begin
         #Automatically buy and sell with village elder, if enabled
         (try_begin),
+          #Mod developers: If using Diplomacy you can skip these next few lines, as Diplomacy already checks for them
           (party_slot_eq, "$current_town", slot_village_state, svs_normal),
           (neg|party_slot_ge, "$current_town", slot_village_infested_by_bandits, 1),
           (party_get_slot, ":merchant_troop", "$current_town",slot_town_elder),
